@@ -83,13 +83,12 @@ module.exports = {
         try {
             const user = await User.findByIdAndUpdate(
                req.params.userId,
-                { $addToSet: { friends: req.params.friendId } },
+                { $addToSet: { friends: req.params.friendsId } },
                 { new: true, runValidators: true},
             )
             if (!user) {
                 return res.status(404).json({ message: "no user found with this id" });
             }
-            user.friends.push(req.params.friendId);
             res.json({message: 'friend added', user});
         }
         catch (err) {
@@ -102,7 +101,7 @@ module.exports = {
         try {
             const user = await User.findByIdAndUpdate(
                 req.params.userId,
-                { $pull: { friends: req.params.friendId } },
+                { $pull: { friends: req.params.friendsId } },
                 { new: true, runValidators: true }
             ).select("-__v");
             if (!user) {
