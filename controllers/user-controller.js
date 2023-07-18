@@ -65,19 +65,54 @@ module.exports = {
     async updateUser(req, res) {
         try {
             const user = await User.findOneAndUpdate(
-                { _id: params.id },
+                { _id: req.params.id },
                 { new: true },
-                { runValidators: true }
+                { new:true, runValidators: true }
             );
-            if(!user){
-                return res.status(404).json({message: 'no user found'});  
+            if (!user) {
+                return res.status(404).json({ message: 'no user found' });
             }
             res.json(user);
         }
-        catch(err){
+        catch (err) {
+            res.status(500).json(err);
+        }
+    },
+    //add friend
+    async addFriend(req, res) {
+        try {
+            const user = await User.findByIdAndUpdate(
+               req.params.userId,
+                { $addToSet: { friends: req.params.friendId } },
+                { new: true, runValidators: true},
+            )
+            if (!user) {
+                return res.status(404).json({ message: "no user found with this id" });
+            }
+            user.friends.push(req.params.friendId);
+            res.json({message: 'friend added', user});
+        }
+        catch (err) {
             res.status(500).json(err);
         }
     },
 
+    //remove friend
+    async removeFriend(req, res) {
+        try {
+            const user = await User.findByIdAndUpdate(
+                req.params.userId,
+                { $pull: { friends: req.params.friendId } },
+                { new: true, runValidators: true }
+            ).select("-__v");
+            if (!user) {
+                return res.status(404).json({ message: "no user found with this id" });
+            }
+            res.json(user);
+        }
+        catch (err) {
+            res.status(500).json(err);
+        }
+    }
 
 }
