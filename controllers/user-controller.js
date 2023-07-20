@@ -70,31 +70,34 @@ module.exports = {
     },
     // Update user
     async updateUser(req, res) {
-        try {
-            // user is assigned to the result of the findOneAndUpdate method
+        try{
+           // user is assigned to the result of the findOneAndUpdate method
             const user = await User.findOneAndUpdate(
-                // finds the user with the id
-                { _id: req.params.id },
-                { new: true },
-                { new:true, runValidators: true }
+                // finds the user by id
+                {_id: req.params.userId},
+                // updates the User
+                {$set: req.body},
+                {runValidators: true, new: true}
             );
-            if (!user) {
-                return res.status(404).json({ message: 'no user found' });
+            if(!user){
+                return res.status(404).json({message: 'No user with this id'});
             }
+            // returns the updated user
             res.json(user);
         }
-        catch (err) {
+        catch(err){
             res.status(500).json(err);
         }
     },
+   
     //add friend
     async addFriend(req, res) {
         try {
             // user is assigned to the result of the findOneAndUpdate method
             const user = await User.findByIdAndUpdate(
-                // finds the user with the id
+                // this is the user id
                req.params.userId,
-            //    adds the friend to the friends array
+            // addtoSet adds the friend to the friends array
                 { $addToSet: { friends: req.params.friendsId } },
                 { new: true, runValidators: true},
             )
@@ -113,9 +116,8 @@ module.exports = {
         try {
             // user is assigned to the result of the findOneAndUpdate method
             const user = await User.findByIdAndUpdate(
-                // finds the user with the id
                 req.params.userId,
-                // removes the friend from the friends array
+                // pull removes the friend from the friends array
                 { $pull: { friends: req.params.friendsId } },
                 { new: true, runValidators: true }
             ).select("-__v");
